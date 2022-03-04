@@ -1,0 +1,49 @@
+﻿@{
+
+    string results = "";
+    //string html = "";
+    if (IsPost)
+    {
+        string name = Request.Form["name"].ToString();
+        string salary = Request.Form["salary"].ToString();
+        string checks = Request.Form["checks"].ToString();
+        string data = Request.Form["data"].ToString();
+
+        List<Exercise.Dependent> dep = new List<Exercise.Dependent>();
+        var list = data.Split(';');
+        for (var i = 0; i < list.Length; i++){
+            var objDep = list[i].Trim(',').Split(',');
+            if (objDep[0] != "")
+            {
+                string varname = objDep[0].ToString();
+                string vartype = objDep[1].ToString();
+                Enum.TryParse(vartype, out Exercise.DependentType myType);
+                Exercise.Dependent obj = new Exercise.Dependent()
+                {
+                    Name = varname,
+                    Type = myType
+                };
+                dep.Add(obj);
+            }
+        }
+
+        Exercise.Employee objEmp = new Exercise.Employee()
+        {
+            Name = name,
+            NumberOfPaychecksPerYear = Convert.ToInt32(checks),
+            YearlySalary = Convert.ToInt32(salary) * 26,
+            Dependents = dep
+        };
+
+        results = Exercise.Helper.getInstance(objEmp);
+        //results = onjCalc.CalculateDeductions(objEmp);
+
+        @*html = "<table><tr><th>Deduction Per Year</th><th>After Deduction</th><th>Per Pay Check</th></tr>";
+        html += "<tr><td>" + results.TotalDeductionPerYear + "</td>";
+        html += "<tr><td>" + results.EmployeePaycheckAfterDeductions + "</td>";
+        html += "<tr><td>" + results.EmployeeDeductionPerPayCheck + "</td>";
+        html += "</tr></table>";*@
+    }
+}
+
+@Html.Raw(results)

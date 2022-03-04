@@ -1,0 +1,129 @@
+﻿@{
+    if (IsPost)
+    {
+        
+    }
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Exercise</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="stylesheet" media="screen,projection" type="text/css" href="~/css/site.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script>
+        function Calculate() {
+            var name = document.getElementById("name").value;
+            var salary = document.getElementById("salary").value;
+            var checks = document.getElementById("checks").value;
+            var table = document.getElementById("tblRelations");
+            var data = [];
+            for (var i = 1; i < table.rows.length; i++) {
+                var tableRow = table.rows[i];
+                var rowData = [];
+                for (var j = 0; j < tableRow.cells.length - 1; j++) {
+                    if (tableRow.cells[0].firstElementChild.value != "") {
+                        rowData.push(tableRow.cells[j].firstElementChild.value);
+                    }
+                }
+                rowData.push(";");
+                data.push(rowData);
+            }
+
+            showPageLoader();
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    hidePageLoader();
+                    document.getElementById("result").innerHTML = this.responseText;
+                }
+            };
+            xhttp.open("POST", "Ajax/GetCalculations", true);
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhttp.send("name=" + name + "&salary=" + salary + "&checks=" + checks + "&data=" + data);
+        }
+
+        //show spinner
+        function showPageLoader() {
+            document.getElementById('PageLoader').style.display = 'block';
+        }
+        //hide spinner
+        function hidePageLoader() {
+            document.getElementById('PageLoader').style.display = 'none';
+        }
+
+        function addRow(obj) {
+
+            var row = obj.parentElement.parentElement;
+            var table = row.parentElement.parentElement;
+            if (row.rowIndex == table.rows.length - 1) {
+                var rowCount = table.rows.length;
+                var lastRow = table.rows[rowCount - 1].innerHTML;
+                var newRow = table.insertRow(rowCount);
+                var newContents = lastRow.split("?").join("?" + rowCount);
+                newRow.innerHTML = newContents;
+                row.cells[2].innerHTML = '';
+            }
+            return true;
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="text-center">
+            <h1>Employee Information</h1>
+            <p class="lead">Enter the employee's information below to calculate their benefits deduction</p>
+            <hr />
+        </div>
+        <h4>Employee</h4>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label asp-for="Name">Name</label>
+                <input asp-for="Name" id="name" class="form-control" />
+            </div>
+            <div class="form-group col-md-4">
+                <label asp-for="YearlySalary">Salary Per Paychecks</label>
+                <input asp-for="YearlySalary" id="salary" value="2000" class="form-control" />
+            </div>
+            <div class="form-group col-md-4">
+                <label asp-for="NumberOfPaychecksPerYear">Number Of Paychecks Per Year</label>
+                <select asp-for="NumberOfPaychecksPerYear" id="checks" class="form-control">
+                    <option value="12">12</option>
+                    <option value="12" selected>26</option>
+                    <option value="48">52</option>
+                </select>
+            </div>
+        </div>
+        <h4>Dependent</h4>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <table class="" id="tblRelations">
+                    <tr>
+                        <th>Name</th>
+                        <th><span style="margin-left:5px;">Relation</span></th>                        
+                    </tr>
+                    <tr>
+                        <td><input class="form-control" type="text" /></td>
+                        <td>
+                            <select class="form-control" style="margin-left:5px;">
+                                <option value="Spouse">Spouse</option>
+                                <option value="Child">Child</option>
+                            </select>
+                        </td>
+                        <td><button class="btn btn-default" style="margin-left:8px; padding:4px 8px;" onclick="addRow(this)"><i class="material-icons" style="margin-top:2px;">add</i></button></td>
+                    </tr>
+                </table>
+            </div> 
+            <div class="form-group col-md-4">
+                <br/>
+                <button id="btnCalculate" class="btn btn-primary" style="float:right;" onclick="Calculate()">Calculate</button>
+            </div>
+        </div>        
+    </div>
+    <div class="container" id="result"></div>
+    <div id="PageLoader"></div>
+</body>
+</html>
